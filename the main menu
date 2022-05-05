@@ -1,0 +1,6 @@
+// 这是主菜单mainmenu，主菜单必须要有，且主菜单的文件名不能修改
+$-----mainmenu-----$
+#1#search@%menu1.txt@
+#2#find@%mainmenu.txt@
+#3#next@%menu1.txt@
+#4#exit@@
