@@ -1,0 +1,5 @@
+$-----menu1-----$
+#1#run1@^helloword.exe@
+#2#run2@^HelloWorldforU.exe@
+#3#last@%mainmenu.txt@
+#4#exit@@
