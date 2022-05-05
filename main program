@@ -1,0 +1,111 @@
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <cstdlib>
+#include <cstring>
+using namespace std;
+class menu {	
+	private:
+		char name[80];
+		enum flag {
+			__menu,__run,__exit
+		};
+		struct {
+			char num[5],optionName[20];		
+			flag a;
+			union {
+				char menuTxt[80];
+				char runExe[80];
+			} next;
+		} option[20];
+		int optionNum;
+	public:
+		menu(const char* s);
+		void display() const;
+		int  input() const;
+		void next(int __next) const;
+};
+menu::menu(const char* s) {
+	fstream fin(s);
+	if(fin == 0) {
+		cerr << "the file goes wrong" << endl;
+	} 
+	char tmp;
+	do {
+		fin.get(tmp);
+	} while(tmp != '$');
+	fin.getline(name,80,'$');
+	
+	int i = 0;
+	fin.get();
+	while(!fin.eof()) {	
+		fin.get(tmp);
+		if(tmp != '#') {
+			cerr << "Formatting error!（1）" << endl;
+			return;
+		}
+		fin.getline(option[i].num,5,'#');
+		fin.getline(option[i].optionName,20,'@');
+		fin.get(tmp);
+		switch (tmp) {
+			case '%':
+				option[i].a = __menu;
+				fin.getline(option[i].next.menuTxt,50,'@');
+				break;
+			case '^':
+				option[i].a = __run;
+				fin.getline(option[i].next.runExe,50,'@');
+				break;
+			case '@':
+				option[i].a = __exit;
+				break;
+			default:
+				cerr << "Formatting error" << endl;
+		}
+		i++;
+		fin.get();
+	}
+	optionNum = i;
+	fin.close();
+}
+void menu::display() const {
+	cout << endl << name << endl;
+	for(int i = 0;i < optionNum;i++) {
+		cout << setw(5) << option[i].num << setw(10) 
+			 << option[i].optionName << endl;
+	}
+	cout << endl << endl;
+}
+int  menu::input() const {
+	char tmp[5];
+	cout << "请输入选项序号:" << endl; 
+	cin >> tmp;
+	cout << endl;
+	for(int i = 0;i < optionNum;i++) {
+		if(strcmp(tmp,option[i].num) == 0) {
+			return i;
+		}
+	}
+	cerr << "Input error" << endl; 
+	return input(); 
+}
+void menu::next(int __next) const {
+	if(option[__next].a == __menu) {
+		menu now(option[__next].next.menuTxt);
+		now.display();
+		now.next(now.input());
+	} else if(option[__next].a == __run) {
+		system(option[__next].next.runExe);
+		display();
+		next(input());
+	} else if(option[__next].a == __exit) {
+		exit(0);
+	}
+}
+int main()
+{
+	menu now("mainmenu.txt");
+	now.display();
+	now.next(now.input());
+	return 0;
+ } 
